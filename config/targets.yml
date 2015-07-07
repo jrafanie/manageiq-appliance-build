@@ -5,5 +5,5 @@ targets:
   # Format:
   #   target: img_fac_target
   vsphere: vsphere
-  ovirt: rhevm
-  openstack: openstack-kvm
+  # ovirt: rhevm
+  # openstack: openstack-kvm
