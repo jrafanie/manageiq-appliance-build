@@ -26,6 +26,11 @@ namespace :build do
     end
   end
 
+  def system_cmd(cmd)
+    puts "Running: #{cmd}"
+    exit $?.exitstatus unless system(cmd)
+  end
+
   task :build_file do
     date    = Time.now.strftime("%Y%m%d%H%M%S")
     git_sha = `git rev-parse --short HEAD`
@@ -39,7 +44,7 @@ namespace :build do
 
   task :precompile_assets do
     Dir.chdir(File.join(__dir__, '..', 'manageiq')) do
-      puts `bundle exec rake evm:compile_assets`
+      system_cmd("bundle exec rake evm:compile_assets")
     end
   end
 
@@ -47,15 +52,15 @@ namespace :build do
     Dir.chdir(File.join(__dir__, '..', 'manageiq')) do
       # compile_sti_loader fails without database.yml - copy as temporary solution
       FileUtils.cp("config/database.pg.yml", "config/database.yml")
-      puts `bundle exec rake evm:compile_sti_loader`
+      system_cmd("bundle exec rake evm:compile_sti_loader")
       FileUtils.rm("config/database.yml")
     end
   end
 
   task :build_selfservice_ui do
     Dir.chdir(File.join(__dir__, '../manageiq/spa_ui/self_service')) do
-      puts `npm install`
-      puts `git clean -xdf`  # cleanup temp files
+      system_cmd("npm install")
+      system_cmd("git clean -xdf")  # cleanup temp files
     end
   end
 
@@ -75,7 +80,7 @@ namespace :build do
     transform << "',^,#{tar_basename}/,'"
 
     # Everything from */tmp/* should be excluded, except for tmp/cache/sti_loader.yml
-    `tar -C ../manageiq #{transform} --exclude-tag='cache/sti_loader.yml' -X #{exclude_file} -hcvzf #{tarball} .`
+    system_cmd("tar -C ../manageiq #{transform} --exclude-tag='cache/sti_loader.yml' -X #{exclude_file} -hcvzf #{tarball} .")
     puts "Built tarball at:\n #{File.expand_path(tarball)}"
   end
 end
