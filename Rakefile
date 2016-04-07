@@ -64,8 +64,11 @@ namespace :build do
     end
   end
 
-  desc "Builds a tarball."
-  task :tar => [:version_files, :build_file, :precompile_assets, :precompile_sti_loader, :build_selfservice_ui] do
+  desc "Prep for tarball build"
+  task :tar_prep => [:version_files, :build_file, :precompile_assets, :precompile_sti_loader, :build_selfservice_ui]
+
+  desc "Builds a tarball"
+  task :tar do
     exclude_file = Build::Productization.file_for((__dir__), "config/tarball/exclude")
     pkg_path     = Pathname.new(__dir__).join("pkg")
     FileUtils.mkdir_p(pkg_path)
